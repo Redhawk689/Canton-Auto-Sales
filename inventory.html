@@ -275,12 +275,29 @@
     loadFromStorage();
     renderCards();
     async function buyTestItem() {
-  const res = await fetch("/create-checkout-session", {
-    method: "POST"
-  });
-  const data = await res.json();
-  window.location = data.url;
+  try {
+    const res = await fetch("/create-checkout-session", {
+      method: "POST"
+    });
+
+    const data = await res.json();
+    console.log("Checkout response:", data);
+
+    if (!res.ok) {
+      throw new Error(data.error || "Checkout failed");
+    }
+
+    if (!data.url) {
+      throw new Error("No checkout URL returned");
+    }
+
+    window.location.href = data.url;  // 🔥 redirect to Stripe
+  } catch (err) {
+    console.error("Checkout error:", err);
+    alert("Checkout failed: " + err.message);
+  }
 }
+
   </script>
 </body>
 </html>
